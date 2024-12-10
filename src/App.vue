@@ -57,8 +57,34 @@
         <div class="mt-4">
           <h3 class="text-lg font-bold">Diet Recommendations:</h3>
           <p class="text-sm text-gray-600">{{ dietRecommendations }}</p>
+          <h3 class="text-lg font-bold mt-2">Recipe Suggestions:</h3>
+          <ul class="list-disc pl-5 text-sm text-gray-600">
+            <li v-for="(recipe, index) in recipeRecommendations" :key="index">{{ recipe }}</li>
+          </ul>
+          <h3 class="text-lg font-bold mt-2">Supplement Recommendations:</h3>
+          <p class="text-sm text-gray-600">{{ supplementRecommendations }}</p>
+          <h3 class="text-lg font-bold mt-2">Local Food Suggestions:</h3>
+          <ul class="list-disc pl-5 text-sm text-gray-600">
+            <li v-for="(food, index) in localFoodRecommendations" :key="index">{{ food }}</li>
+          </ul>
           <h3 class="text-lg font-bold mt-2">Exercise Recommendations:</h3>
           <p class="text-sm text-gray-600">{{ exerciseRecommendations }}</p>
+          <h3 class="text-lg font-bold mt-2">Daily Motivation:</h3>
+          <p class="text-sm text-gray-600">{{ dailyMotivation }}</p>
+          <h3 class="text-lg font-bold mt-2">Fitness Goals:</h3>
+          <input
+            v-model.number="fitnessGoal"
+            type="number"
+            placeholder="Set your fitness goal (in kg)"
+            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+          <button
+            @click="setFitnessGoal"
+            class="mt-2 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
+          >
+            Set Goal
+          </button>
+          <p v-if="goalMessage" class="text-green-500 mt-2">{{ goalMessage }}</p>
         </div>
       </div>
       <h3 class="text-lg font-bold mt-6">BMI History</h3>
@@ -74,6 +100,33 @@
       >
         Clear History
       </button>
+      <button
+        @click="showPolicy"
+        class="mt-4 w-full bg-gray-600 text-white py-2 rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+      >
+        View Policy
+      </button>
+    </div>
+
+    <!-- Modal for Policy -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div class="bg-white rounded-lg p-6 w-3/4 max-w-lg">
+        <h2 class="text-xl font-bold mb-4">Application Policy</h2>
+        <p class="text-sm text-gray-800">
+          Your privacy is important to us. We are committed to protecting your personal information
+          and ensuring its use in compliance with applicable laws and regulations. Please read our
+          full policy on data collection, usage, and user rights.
+        </p>
+        <button
+          @click="closePolicy"
+          class="mt-4 w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700"
+        >
+          Close
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -88,7 +141,14 @@ export default {
       bmiHistory: [],
       unit: 'metric',
       weightError: '',
-      heightError: ''
+      heightError: '',
+      fitnessGoal: null,
+      goalMessage: '',
+      recipeRecommendations: [],
+      supplementRecommendations: '',
+      localFoodRecommendations: [],
+      dailyMotivation: this.getDailyMotivation(),
+      showModal: false // State for modal visibility
     }
   },
   computed: {
@@ -139,6 +199,82 @@ export default {
 
       this.bmi = (weightInKg / heightInMeters ** 2).toFixed(1)
       this.saveHistory(this.bmi)
+      this.getRecipeRecommendations()
+      this.getSupplementRecommendations()
+      this.getLocalFoodRecommendations()
+    },
+    getRecipeRecommendations() {
+      if (this.bmi < 18.5) {
+        this.recipeRecommendations = [
+          'Avocado Toast with Whole Grain Bread',
+          'Quinoa Salad with Nuts and Fruits',
+          'Smoothie with Banana, Spinach, and Almond Milk'
+        ]
+      } else if (this.bmi < 24.9) {
+        this.recipeRecommendations = [
+          'Grilled Chicken Salad with Mixed Greens',
+          'Baked Salmon with Vegetables',
+          'Vegetable Stir-Fry with Tofu'
+        ]
+      } else if (this.bmi < 29.9) {
+        this.recipeRecommendations = [
+          'Zucchini Noodles with Pesto',
+          'Chickpea Salad with Lemon Dressing',
+          'Quinoa Bowl with Black Beans and Avocado'
+        ]
+      } else {
+        this.recipeRecommendations = [
+          'Cauliflower Rice Stir-Fry',
+          'Grilled Vegetables with Quinoa',
+          'Salad with Leafy Greens and Grilled Chicken'
+        ]
+      }
+    },
+    getSupplementRecommendations() {
+      if (this.bmi < 18.5) {
+        this.supplementRecommendations =
+          'Consider protein powder or meal replacement shakes to gain weight healthily.'
+      } else if (this.bmi < 24.9) {
+        this.supplementRecommendations = 'A multivitamin may help maintain overall health.'
+      } else if (this.bmi < 29.9) {
+        this.supplementRecommendations = 'Consider omega-3 fatty acids and fiber supplements.'
+      } else {
+        this.supplementRecommendations =
+          'Look into meal replacements and appetite suppressants, but consult a healthcare provider first.'
+      }
+    },
+    getLocalFoodRecommendations() {
+      if (this.bmi < 18.5) {
+        this.localFoodRecommendations = [
+          'Nuts and Nut Butters',
+          'Whole Grain Bread',
+          'Full-Fat Dairy Products'
+        ]
+      } else if (this.bmi < 24.9) {
+        this.localFoodRecommendations = [
+          'Fresh Fruits and Vegetables',
+          'Lean Meats',
+          'Whole Grains'
+        ]
+      } else if (this.bmi < 29.9) {
+        this.localFoodRecommendations = ['Low-Calorie Snacks', 'High-Fiber Foods', 'Lean Proteins']
+      } else {
+        this.localFoodRecommendations = [
+          'Green Leafy Vegetables',
+          'Low-Calorie Soups',
+          'Lean Protein Sources'
+        ]
+      }
+    },
+    getDailyMotivation() {
+      const motivations = [
+        'Stay positive, work hard, make it happen!',
+        'Your only limit is you. Be brave and fearless!',
+        'Push yourself because no one else is going to do it for you.',
+        'Great things never come from comfort zones.',
+        'Dream it. Wish it. Do it.'
+      ]
+      return motivations[Math.floor(Math.random() * motivations.length)]
     },
     saveHistory(bmi) {
       const entry = {
@@ -160,6 +296,17 @@ export default {
     },
     reloadPage() {
       window.location.reload()
+    },
+    setFitnessGoal() {
+      this.goalMessage = this.fitnessGoal
+        ? `Your fitness goal is set to ${this.fitnessGoal} kg!`
+        : ''
+    },
+    showPolicy() {
+      this.showModal = true // Show the modal
+    },
+    closePolicy() {
+      this.showModal = false // Hide the modal
     }
   },
   mounted() {
